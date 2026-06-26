@@ -279,4 +279,4 @@ This project started as a private bar app and is still optimized for that use ca
 
 ## License
 
-No license is included by default. Add a license before accepting external contributions or redistributing the project.
+No license is included.

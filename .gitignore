@@ -1,0 +1,57 @@
+# Dependencies
+node_modules/
+
+# Build
+dist/
+
+# Environment
+.env
+.env.local
+.env.*
+!.env.production.example
+
+# Uploads
+uploads/temp/
+uploads/drinks/
+uploads/reviews/
+uploads/avatars/
+data/
+backups/
+*.sql
+*.sql.gz
+*.dump
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+.local-dev/
+*.zip
+*.tar
+*.tar.gz
+*.pem
+*.key
+*.pfx
+*_deploy_key*
+
+# Flutter
+app/.dart_tool/
+app/.packages
+app/build/
+app/.flutter-plugins
+app/.flutter-plugins-dependencies
+app/ios/Pods/
+app/ios/.symlinks/
+app/android/.gradle/
+app/android/local.properties
+app/*.iml
+
+# Docker
+certbot/
+LOCAL_RELEASE_CHECKLIST.md

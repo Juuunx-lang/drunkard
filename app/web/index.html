@@ -1,0 +1,243 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <!--
+    If you are serving your web app in a path other than the root, change the
+    href value below to reflect the base path you are serving from.
+
+    The path provided below has to start and end with a slash "/" in order for
+    it to work correctly.
+
+    For more details:
+    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
+
+    This is a placeholder for base href that will be replaced by the value of
+    the `--base-href` argument provided to `flutter build`.
+  -->
+  <base href="$FLUTTER_BASE_HREF">
+
+  <meta charset="UTF-8">
+  <meta content="IE=Edge" http-equiv="X-UA-Compatible">
+  <meta name="description" content="酒鬼聚集地 - 私人酒局点单、订单、评论与社区工具。">
+
+  <!-- iOS meta tags & icons -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black">
+  <meta name="apple-mobile-web-app-title" content="酒鬼聚集地">
+  <link rel="apple-touch-icon" href="icons/Icon-192.png">
+
+  <!-- Favicon -->
+  <link rel="icon" type="image/png" href="favicon.png"/>
+
+  <title>酒鬼聚集地</title>
+  <link rel="manifest" href="manifest.json">
+  <style>
+    html,
+    body {
+      background: #050507;
+    }
+
+    #drunkard-splash {
+      position: fixed;
+      inset: 0;
+      z-index: 999999;
+      display: grid;
+      place-items: center;
+      overflow: hidden;
+      background:
+        radial-gradient(circle at 50% 44%, rgba(255, 209, 128, 0.16), transparent 28%),
+        radial-gradient(circle at 32% 28%, rgba(119, 75, 255, 0.20), transparent 34%),
+        radial-gradient(circle at 70% 76%, rgba(255, 49, 132, 0.13), transparent 30%),
+        linear-gradient(145deg, #09080d 0%, #050507 52%, #0d0906 100%);
+      transition: opacity 420ms ease, visibility 420ms ease;
+    }
+
+    #drunkard-splash.drunkard-splash-hide {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    .drunkard-loader {
+      position: relative;
+      display: grid;
+      place-items: center;
+      width: 132px;
+      height: 132px;
+      color: #f7d28a;
+      filter: drop-shadow(0 18px 36px rgba(247, 210, 138, 0.18));
+    }
+
+    .drunkard-loader::before,
+    .drunkard-loader::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      border-radius: 999px;
+      border: 1px solid rgba(247, 210, 138, 0.18);
+    }
+
+    .drunkard-loader::before {
+      border-top-color: rgba(247, 210, 138, 0.92);
+      border-right-color: rgba(255, 49, 132, 0.54);
+      animation: drunkard-spin 920ms linear infinite;
+    }
+
+    .drunkard-loader::after {
+      inset: 15px;
+      border-bottom-color: rgba(119, 75, 255, 0.72);
+      animation: drunkard-spin 1.35s linear infinite reverse;
+    }
+
+    .drunkard-glass {
+      position: relative;
+      width: 64px;
+      height: 64px;
+      transform-origin: 50% 52%;
+      animation: drunkard-float 1.35s ease-in-out infinite;
+    }
+
+    .drunkard-glass::before {
+      content: "🍸";
+      position: absolute;
+      inset: 0;
+      display: grid;
+      place-items: center;
+      font-size: 50px;
+      line-height: 1;
+      transform: translate(-1px, 2px);
+      transform-origin: 50% 70%;
+      animation: drunkard-glass-spin 1.9s ease-in-out infinite;
+    }
+
+    .drunkard-caption {
+      position: absolute;
+      top: calc(50% + 88px);
+      left: 50%;
+      transform: translateX(-50%);
+      color: rgba(255, 244, 220, 0.72);
+      font: 600 12px/1.2 system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      letter-spacing: 0.28em;
+      text-transform: uppercase;
+      white-space: nowrap;
+    }
+
+    @keyframes drunkard-spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    @keyframes drunkard-float {
+      0%,
+      100% {
+        transform: translateY(3px);
+      }
+      50% {
+        transform: translateY(-5px);
+      }
+    }
+
+    @keyframes drunkard-glass-spin {
+      0%,
+      100% {
+        transform: translate(-1px, 2px) rotate(-8deg) scale(1);
+      }
+      50% {
+        transform: translate(-1px, 2px) rotate(8deg) scale(1.05);
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="drunkard-splash" aria-label="Drunkard 正在加载">
+    <div class="drunkard-loader">
+      <div class="drunkard-glass"></div>
+    </div>
+    <div class="drunkard-caption">Mixing</div>
+  </div>
+  <script>
+    window.hideDrunkardSplash = function () {
+      var splash = document.getElementById('drunkard-splash');
+      if (!splash) {
+        return;
+      }
+      splash.classList.add('drunkard-splash-hide');
+      window.setTimeout(function () {
+        if (splash && splash.parentNode) {
+          splash.parentNode.removeChild(splash);
+        }
+      }, 480);
+    };
+
+    (function () {
+      var reloadKey = 'drunkard-sw-cleaned';
+      var localStateResetKey = 'drunkard-local-state-reset-20260605-auth-profile-v2';
+      var maxProfileCustomizationLength = 900000;
+
+      try {
+        if (!localStorage.getItem(localStateResetKey)) {
+          [
+            'auth_token',
+            'auth_user',
+            'flutter.auth_token',
+            'flutter.auth_user'
+          ].forEach(function (key) {
+            localStorage.removeItem(key);
+          });
+          localStorage.setItem(localStateResetKey, '1');
+        }
+
+        for (var index = localStorage.length - 1; index >= 0; index -= 1) {
+          var key = localStorage.key(index);
+          if (
+            !key ||
+            (
+              key.indexOf('flutter.profile_customization_') !== 0 &&
+              key.indexOf('profile_customization_') !== 0
+            )
+          ) {
+            continue;
+          }
+
+          var value = localStorage.getItem(key) || '';
+          if (value.length > maxProfileCustomizationLength) {
+            localStorage.removeItem(key);
+          }
+        }
+      } catch (error) {}
+
+      if ('caches' in window) {
+        caches.keys().then(function (keys) {
+          return Promise.all(keys.map(function (key) { return caches.delete(key); }));
+        }).catch(function () {});
+      }
+
+      if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(function (registrations) {
+          if (!registrations.length) {
+            return;
+          }
+
+          Promise.all(registrations.map(function (registration) {
+            return registration.unregister();
+          })).then(function () {
+            if (!sessionStorage.getItem(reloadKey)) {
+              sessionStorage.setItem(reloadKey, '1');
+              window.location.reload();
+            }
+          });
+        }).catch(function () {});
+      }
+    })();
+  </script>
+  <!--
+    You can customize the "flutter_bootstrap.js" script.
+    This is useful to provide a custom configuration to the Flutter loader
+    or to give the user feedback during the initialization process.
+
+    For more details:
+    * https://docs.flutter.dev/platform-integration/web/initialization
+  -->
+  <script src="flutter_bootstrap.js" async></script>
+</body>
+</html>

@@ -1,0 +1,248 @@
+generator client {
+  provider      = "prisma-client-js"
+  binaryTargets = ["native", "windows"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  GUEST
+}
+
+enum OrderStatus {
+  PENDING
+  CONFIRMED
+  PREPARING
+  READY
+  DELIVERED
+  CANCELLED
+}
+
+enum IngredientCategory {
+  BASE_SPIRIT
+  SYRUP
+  MIXER
+}
+
+enum CommunityCategory {
+  LIFE
+  SHARE
+  BAR
+  OFFICIAL
+}
+
+enum BarStatus {
+  IDLE
+  BUSY
+  CLOSED
+}
+
+model User {
+  id            String   @id @default(cuid())
+  phone         String?  @unique
+  passwordHash  String?  @map("password_hash")
+  wechatOpenId  String?  @unique @map("wechat_open_id")
+  wechatUnionId String?  @map("wechat_union_id")
+  wechatName    String?  @map("wechat_name")
+  nickname      String
+  avatarUrl     String?  @map("avatar_url")
+  backgroundUrl String?  @map("background_url")
+  signature     String?
+  role          UserRole @default(GUEST)
+  createdAt     DateTime @default(now()) @map("created_at")
+  updatedAt     DateTime @updatedAt @map("updated_at")
+
+  orders         Order[]
+  reviews        Review[]
+  favorites      Favorite[]
+  communityPosts CommunityPost[]
+  communityLikes CommunityPostLike[]
+
+  @@map("users")
+}
+
+model Drink {
+  id          String   @id @default(cuid())
+  name        String
+  nameEn      String?  @map("name_en")
+  description String
+  recipe      String?
+  photoUrl    String?  @map("photo_url")
+  category    String?
+  abv         Float?
+  isAvailable Boolean  @default(true) @map("is_available")
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  ingredients DrinkIngredient[]
+  orderItems  OrderItem[]
+  reviews     Review[]
+  favorites   Favorite[]
+
+  @@map("drinks")
+}
+
+model DrinkCategory {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  sortOrder   Int      @default(0) @map("sort_order")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  @@map("drink_categories")
+}
+
+model Favorite {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  drinkId   String   @map("drink_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user  User  @relation(fields: [userId], references: [id], onDelete: Cascade)
+  drink Drink @relation(fields: [drinkId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, drinkId])
+  @@map("favorites")
+}
+
+model CommunityPost {
+  id        String            @id @default(cuid())
+  userId    String            @map("user_id")
+  category  CommunityCategory
+  title     String
+  content   String
+  createdAt DateTime          @default(now()) @map("created_at")
+  updatedAt DateTime          @updatedAt @map("updated_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  photos CommunityPostPhoto[]
+  likes  CommunityPostLike[]
+
+  @@map("community_posts")
+}
+
+model CommunityPostPhoto {
+  id        String   @id @default(cuid())
+  postId    String   @map("post_id")
+  url       String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@map("community_post_photos")
+}
+
+model CommunityPostLike {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  postId    String   @map("post_id")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post CommunityPost @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
+  @@map("community_post_likes")
+}
+
+model BarSetting {
+  id        String    @id @default("bar")
+  status    BarStatus @default(IDLE)
+  updatedAt DateTime  @updatedAt @map("updated_at")
+
+  @@map("bar_settings")
+}
+
+model Ingredient {
+  id        String             @id @default(cuid())
+  name      String
+  category  IngredientCategory
+  inStock   Boolean            @default(true) @map("in_stock")
+  notes     String?
+  createdAt DateTime           @default(now()) @map("created_at")
+  updatedAt DateTime           @updatedAt @map("updated_at")
+
+  drinks DrinkIngredient[]
+
+  @@map("ingredients")
+}
+
+model DrinkIngredient {
+  id           String     @id @default(cuid())
+  drinkId      String     @map("drink_id")
+  ingredientId String     @map("ingredient_id")
+  amount       String?
+  isOptional   Boolean    @default(false) @map("is_optional")
+
+  drink      Drink      @relation(fields: [drinkId], references: [id], onDelete: Cascade)
+  ingredient Ingredient @relation(fields: [ingredientId], references: [id], onDelete: Cascade)
+
+  @@unique([drinkId, ingredientId])
+  @@map("drink_ingredients")
+}
+
+model Order {
+  id        String      @id @default(cuid())
+  displayNo Int?        @unique @default(autoincrement()) @map("display_no")
+  userId    String      @map("user_id")
+  status    OrderStatus @default(PENDING)
+  notes     String?
+  createdAt DateTime    @default(now()) @map("created_at")
+  updatedAt DateTime    @updatedAt @map("updated_at")
+
+  user  User        @relation(fields: [userId], references: [id])
+  items OrderItem[]
+
+  @@map("orders")
+}
+
+model OrderItem {
+  id       String @id @default(cuid())
+  orderId  String @map("order_id")
+  drinkId  String @map("drink_id")
+  quantity Int    @default(1)
+  notes    String?
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  drink Drink @relation(fields: [drinkId], references: [id])
+  reviews Review[]
+
+  @@map("order_items")
+}
+
+model Review {
+  id          String    @id @default(cuid())
+  userId      String    @map("user_id")
+  drinkId     String    @map("drink_id")
+  orderItemId String?   @map("order_item_id")
+  content     String
+  rating      Int?
+  createdAt   DateTime  @default(now()) @map("created_at")
+  updatedAt   DateTime  @updatedAt @map("updated_at")
+
+  user   User          @relation(fields: [userId], references: [id])
+  drink  Drink         @relation(fields: [drinkId], references: [id], onDelete: Cascade)
+  orderItem OrderItem? @relation(fields: [orderItemId], references: [id])
+  photos ReviewPhoto[]
+
+  @@map("reviews")
+}
+
+model ReviewPhoto {
+  id        String   @id @default(cuid())
+  reviewId  String   @map("review_id")
+  url       String
+  sortOrder Int      @default(0) @map("sort_order")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  review Review @relation(fields: [reviewId], references: [id], onDelete: Cascade)
+
+  @@map("review_photos")
+}
